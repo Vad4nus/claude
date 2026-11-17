@@ -1,0 +1,14 @@
+{
+  "name": "vad4nus",
+  "owner": {
+    "name": "Vadim Danilenko"
+  },
+  "description": "Personal marketplace. This repo is both the marketplace and the plugin it distributes.",
+  "plugins": [
+    {
+      "name": "vad4nus",
+      "source": "./",
+      "description": "Personal plugin which has a number of own skills"
+    }
+  ]
+}

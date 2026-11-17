@@ -1,0 +1,38 @@
+{
+  "name": "vad4nus",
+  "description": "Number of skills: research-codebase, create-plan, plan-status, plan-archive, implement-plan, validate-plan, caveman, tdd, cross-model-deliberation, kmp-verify, ios-run, ios-testflight, ios-appstoreconnect, fetch-server-jira-tasks, thermo-nuclear-code-quality-review, orchestrate",
+  "author": {
+    "name": "Vadim Danilenko"
+  },
+  "license": "UNLICENSED",
+  "userConfig": {
+    "jira_server_url": {
+      "type": "string",
+      "title": "Jira Server URL",
+      "description": "Jira Server base URL",
+      "default": "https://jira.jetru.by"
+    },
+    "jira_server_project": {
+      "type": "string",
+      "title": "Jira Project Key(s)",
+      "description": "Project key or comma-separated list of project keys to filter issues (leave empty for all projects)"
+    },
+    "jira_download_dir": {
+      "type": "string",
+      "title": "Download Directory",
+      "description": "Directory for downloaded issues and attachments",
+      "default": "~/Jira"
+    }
+  },
+  "mcpServers": {
+    "jira-server": {
+      "command": "/Users/macbook-cdg/.local/bin/uv",
+      "args": ["run", "--quiet", "--script", "${CLAUDE_PLUGIN_ROOT}/mcp/jira_server.py"],
+      "env": {
+        "JIRA_URL": "${user_config.jira_server_url}",
+        "JIRA_PROJECT": "${user_config.jira_server_project}",
+        "JIRA_DOWNLOAD_DIR": "${user_config.jira_download_dir}"
+      }
+    }
+  }
+}
