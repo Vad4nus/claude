@@ -81,7 +81,7 @@ The plan session asks its own questions (interview, Codex disagreements) before 
 The last message, in the user's language, built from the side sessions' final messages (`list_events`), with a link to each session:
 
 1. Plan: path, 7b verdict, Codex outcome.
-2. Implementation: phases done, validation, review findings applied or left for the user, blocked parts with the resume command.
+2. Implementation: phases done, validation, the requirements check (met, fixed, left for the user), review findings applied or left for the user, blocked parts with the resume command.
 3. iOS: scheme, simulator or device, build time, fix rounds with what each fixed, launched yes or no; or "skipped (--no-ios)".
 4. Testing: each check with its verdict, failures with steps and screenshot path; or skipped with the reason (`--no-testing`, `--real`, `--no-ios`, the app did not launch).
 5. Manual checks: the full numbered list from implement-plan's summary, never a count; mark the ones ios-qa passed.

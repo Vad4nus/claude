@@ -28,22 +28,34 @@ Persist interview answers (translated to English). At Step 3, append the deep-in
 - {unanswered concern in English}
 ```
 
-## VERIFICATION.md (Step 7b — write; Step 7c — append)
+## VERIFICATION.md (Step 7b — write; Step 7c — append; implement-plan — append)
 
-Record the plan-quality verdict.
+Record the requirements check and the plan-quality verdict. implement-plan finds this file by its `Plan:` line, also after `/vad4nus:plan-archive` moved it to `history/`, and checks the code against the `## Requirements (BRD)` IDs.
 
 ```markdown
 # VERIFICATION.md — Plan Quality Assessment
 
 > **Task:** {slug}
+> **Plan:** {plan path}
+> **Sources:** {ticket files, thoughts/groom/TASK.md}
 > **Verdict:** **{PASS | FLAG | FAIL}**
 > **Criticals:** {N} | **Warnings:** {N}
 
-## Coverage Matrix
+## Requirements (BRD)
 
-| #   | Requirement | Covered By | Status |
-| --- | ----------- | ---------- | ------ |
-| 1   | {text}      | Phase {N}  | YES    |
+The `requirements-check` agent's table, after your verdict on each finding (Note: `rejected: {evidence}`, `fixed: {plan change}`, `for user`).
+
+| ID  | Requirement | Source                 | Plan                  | Status   | Note   |
+| --- | ----------- | ---------------------- | --------------------- | -------- | ------ |
+| R1  | {statement} | {file}: "{quote}"      | Phase {N}, {task}     | {status} | {note} |
+
+### Ambiguous
+
+- R{n}: {reading A} / {reading B}; the plan took {which}. {answer or for user}
+
+### Extras
+
+- Phase {N}, {task}: {what it changes}. {kept: why, or removed}
 
 ## Flags
 
@@ -63,4 +75,17 @@ Record the plan-quality verdict.
 | #   | Finding | Verdict                                        | Plan change      |
 | --- | ------- | ---------------------------------------------- | ---------------- |
 | 1   | {text}  | {accepted \| rejected: {evidence} \| for user} | {change or none} |
+
+## Implementation Check
+
+> **BASE:** {commit} | **Checked:** {date}
+> **Not met:** {N} | **Partial:** {N} | **Runtime only:** {N} | **Met:** {N}
+
+| ID  | Status   | Evidence                        | Action                                                  |
+| --- | -------- | ------------------------------- | ------------------------------------------------------- |
+| R1  | {status} | {file:line, or what is missing} | {fixed: {change} \| for user: {why} \| manual: {check} \| none} |
+
+### Regressions
+
+- {file:line}: {requirement or non-goal it breaks}. {fixed or for user}
 ```

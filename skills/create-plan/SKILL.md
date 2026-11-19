@@ -62,7 +62,7 @@ These rules apply throughout the whole process.
 | -------------------- | -------------------------------------------- | --------------------------------------------------------------- |
 | Interview record     | `thoughts/groom/TASK.md`                     | Original description, interview answers, extracted requirements |
 | Research digest      | `thoughts/groom/CONTEXT.md`                  | Short summary of Step 2 findings (optional)                     |
-| Plan-quality verdict | `thoughts/groom/VERIFICATION.md`             | Coverage matrix + PASS/FLAG/FAIL                                |
+| Requirements & verdict | `thoughts/groom/VERIFICATION.md`           | Requirements (BRD) check + PASS/FLAG/FAIL; implement-plan appends its check against the code |
 | The plan             | `thoughts/shared/plans/YYYY-MM-DD-<slug>.md` | The permanent deliverable                                       |
 
 The `thoughts/groom/` artifacts are ephemeral session state; the plan in `thoughts/shared/plans/` is the permanent deliverable. Inspect with `/vad4nus:plan-status`, clear with `/vad4nus:plan-archive`.
@@ -257,11 +257,19 @@ Self-check before finalizing; fix any failure before proceeding:
 
 #### 7b. Plan-Quality Verification
 
-Audit the plan **mechanically** against requirements before presenting. This checks the _quality of the plan_ (distinct from `/vad4nus:validate-plan`, which checks _execution_ after coding). Run these binary (YES/NO) checks:
+Audit the plan against requirements before presenting. This checks the _quality of the plan_ (distinct from `/vad4nus:validate-plan`, which checks _execution_ after coding).
+
+**Requirements check first.** Spawn the `vad4nus:requirements-check` agent (sonnet) with: mode `plan`, the requirement sources (every ticket file read in Step 1, fetched ticket folders, `thoughts/groom/TASK.md`), the plan path and the repo root. Do not hand it your own requirement list: it extracts its own from the sources, so it catches what `TASK.md` dropped. Check each finding against the plan and the sources yourself:
+
+- Wrong → keep it, with the evidence, in the Note column.
+- Confirmed → it feeds the checks below; fix the plan.
+- An Ambiguous item, or an Extra you would keep → a question for the user in Step 8. Never settle it alone.
+
+Then run these binary (YES/NO) checks:
 
 **Criticals** (each NO is a critical):
 
-- Coverage — every requirement in `TASK.md` is covered by ≥1 phase/task. A `BLOCKED:` placeholder counts as covered; list it in `VERIFICATION.md`.
+- Coverage — the requirements check has no confirmed `missing` or `contradicts`. A `blocked` requirement counts as covered.
 - Atomicity — no task touches >3 files, has >5 acceptance criteria, or mixes unrelated concerns.
 - Dependency order — the task dependency graph is acyclic; every "read before" / "files to modify" target already exists or is created by an earlier task.
 
@@ -271,6 +279,7 @@ Audit the plan **mechanically** against requirements before presenting. This che
 - Edge cases — edge cases captured in TASK.md are addressed in ≥1 task's acceptance criteria.
 - AC quality — every acceptance criterion is measurable and domain-appropriate.
 - Phase metadata — every phase sets Priority and Risk and has a specific "Read Before Starting" list.
+- Requirements depth — no confirmed `partial` left, and every Extra is removed or explained in the plan.
 
 **Verdict:**
 
@@ -280,7 +289,7 @@ Audit the plan **mechanically** against requirements before presenting. This che
 | **FLAG** | 0 criticals AND 1–2 warnings | Present, but surface the warnings to the user        |
 | **FAIL** | ≥1 critical OR ≥3 warnings   | Regenerate the plan (fix the gaps) before presenting |
 
-**Regeneration is bounded.** On FAIL, fix the specific gaps and re-verify **at most twice**. If still FAIL after the second regeneration, stop: present the plan with the outstanding flags from `VERIFICATION.md` and ask the user how to proceed. Do not loop indefinitely.
+**Regeneration is bounded.** On FAIL, fix the specific gaps and re-verify **at most twice**; each re-verify spawns the requirements check again on the fixed plan. If still FAIL after the second regeneration, stop: present the plan with the outstanding flags from `VERIFICATION.md` and ask the user how to proceed. Do not loop indefinitely.
 
 Write the result to `thoughts/groom/VERIFICATION.md` (English) — use the VERIFICATION.md format in [artifacts.md](artifacts.md). Do not present the plan as final until the verdict is PASS or FLAG.
 
@@ -302,13 +311,13 @@ Append the `## Codex Review` section to `VERIFICATION.md` (format in [artifacts.
 
 1. Verify the plan was saved to the correct path.
    If `## Blocked` is not empty, open with it: "Не работает: <source> (<error>). Поправь <what to fix>, и я закончу план: <blocked parts>" (in the user's language). When it is fixed, fill only those parts and re-run the 7a/7b checks they touch.
-2. Present the path, the 7b verdict, and the Codex review outcome (what was fixed, what was rejected, open disagreements as explicit questions). Ask for feedback: phases, success criteria, technical details, missing edge cases.
+2. Present the path, the 7b verdict with the requirements check (how many requirements, what was fixed, the open Ambiguous and Extras as explicit questions), and the Codex review outcome (what was fixed, what was rejected, open disagreements as explicit questions). Ask for feedback: phases, success criteria, technical details, missing edge cases.
 3. Iterate — adjust phases, approach, success criteria, or scope — until the user is satisfied.
 4. Once approved, tell the user they can inspect the session with `/vad4nus:plan-status` and archive it with `/vad4nus:plan-archive`. Implementation starts only by hand; give both ready-to-copy options:
    - `/vad4nus:implement-plan <plan path>` — continue in this session
    - `/clear`, then `/vad4nus:implement-plan <plan path>` — start from a clean context; the plan on disk carries everything, and after a long planning session this is the better choice
 
-With `--auto`: after item 1, ask the open Codex disagreements through `AskUserQuestion` and apply the answers to the plan. Skip items 2 to 4. The very last line of the turn is `PLAN: <plan path>`.
+With `--auto`: after item 1, ask the open requirement questions from 7b and the open Codex disagreements through `AskUserQuestion` and apply the answers to the plan. Skip items 2 to 4. The very last line of the turn is `PLAN: <plan path>`.
 
 ## Plan Template Reference
 

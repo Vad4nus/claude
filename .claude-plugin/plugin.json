@@ -1,6 +1,6 @@
 {
   "name": "vad4nus",
-  "description": "Number of skills: research-codebase, create-plan, plan-status, plan-archive, implement-plan, validate-plan, caveman, tdd, cross-model-deliberation, kmp-verify, ios-run, ios-testflight, ios-appstoreconnect, fetch-server-jira-tasks, thermo-nuclear-code-quality-review, orchestrate",
+  "description": "Number of skills: research-codebase, create-plan, plan-status, plan-archive, implement-plan, validate-plan, caveman, tdd, cross-model-deliberation, kmp-verify, ios-run, ios-qa, ios-testflight, ios-appstoreconnect, fetch-server-jira-tasks, thermo-nuclear-code-quality-review, orchestrate",
   "author": {
     "name": "Vadim Danilenko"
   },

@@ -1,5 +1,5 @@
 ---
-description: "Execute an approved implementation plan from thoughts/shared/plans/, then validate it, fix what validation finds and apply a thermo-nuclear code quality review. Args: the plan path (or the plan discussed in this session) plus optional notes, e.g. which phases to run; already checked items are skipped. E.g. /vad4nus:implement-plan thoughts/shared/plans/2026-10-08-x.md only phase 2"
+description: "Execute an approved implementation plan from thoughts/shared/plans/, then validate it, check it against the task's requirements (BRD) from VERIFICATION.md, fix what both find and apply a thermo-nuclear code quality review. Args: the plan path (or the plan discussed in this session) plus optional notes, e.g. which phases to run; already checked items are skipped. E.g. /vad4nus:implement-plan thoughts/shared/plans/2026-10-08-x.md only phase 2"
 argument-hint: "[plan path] [notes]"
 model: sonnet
 effort: high
@@ -15,7 +15,7 @@ disable-model-invocation: true
 ---
 
 <role>
-You are a plan implementation agent. Your task is to execute an approved technical plan from `thoughts/shared/plans/` phase by phase. Implement each phase fully, verify against success criteria, check off the plan, then proceed to the next — never skip verification or run phases in parallel. Once every phase is done, validate the whole change, fix what validation finds, and apply a thermo-nuclear code quality review.
+You are a plan implementation agent. Your task is to execute an approved technical plan from `thoughts/shared/plans/` phase by phase. Implement each phase fully, verify against success criteria, check off the plan, then proceed to the next — never skip verification or run phases in parallel. Once every phase is done, validate the whole change, check it against the task's requirements, fix what both find, and apply a thermo-nuclear code quality review.
 </role>
 
 ---
@@ -203,25 +203,40 @@ reviewed twice. The
 user opted into automatic fixes: run the steps in order without asking. Inside
 `<finish>` a failing check is a finding to fix, not a reason to STOP.
 
-1. Validate. Read `../validate-plan/SKILL.md` relative to this skill's base
+1. Requirements check, started first so it runs during step 2. Find this
+   plan's VERIFICATION.md: `thoughts/groom/VERIFICATION.md` or
+   `thoughts/groom/history/*/VERIFICATION.md`, the one whose `Plan:` line
+   names this plan's file and that has a `## Requirements (BRD)` table. Found →
+   spawn the `vad4nus:requirements-check` agent (sonnet) with: mode
+   `implementation`, that file's path, the plan path, the repo root and BASE.
+   Not found (plans made before create-plan wrote it) → skip, and say so in
+   the summary.
+2. Validate. Read `../validate-plan/SKILL.md` relative to this skill's base
    directory and follow it for this plan, with kmp-verify `--base BASE`. Skip
-   its "Present the Report" step: its findings feed step 2, and the final
-   summary carries the verdicts.
-2. Fix every [FAIL], and every [WARN] or potential issue this implementation
-   caused. Rerun only the checks that failed. At most 2 fix rounds; whatever
-   still fails goes to the summary as a known issue. Not findings: manual-only
-   criteria (they go to the summary's Manual checks list) and failures that also occur at BASE
-   (note them as pre-existing).
-3. Review. Spawn the `vad4nus:thermo-nuclear-code-quality-review` agent once.
+   its "Present the Report" step: its findings feed step 3, and the final
+   summary carries the verdicts. Then wait for the step 1 agent.
+3. Fix every [FAIL], and every [WARN] or potential issue this implementation
+   caused. Fix every confirmed `not met`, `partial` and Regression from the
+   requirements check too; check each against the code first, the agent can
+   be wrong. Not fixed here, listed for the user: a requirement whose fix
+   needs the user's decision or contradicts the plan's "What We're NOT Doing".
+   `runtime only` goes to the Manual checks list. Rerun only the checks that
+   failed. At most 2 fix rounds; whatever still fails goes to the summary as a
+   known issue. Not findings: manual-only criteria (they go to the summary's
+   Manual checks list) and failures that also occur at BASE (note them as
+   pre-existing). Then append `## Implementation Check` to the
+   VERIFICATION.md from step 1, statuses after the fixes (format in
+   `../create-plan/artifacts.md`).
+4. Review. Spawn the `vad4nus:thermo-nuclear-code-quality-review` agent once.
    Its prompt: the repo root, BASE, the plan path, and the absolute path of
    `../thermo-nuclear-code-quality-review/SKILL.md` resolved from this
    skill's base directory as the rubric.
-4. Apply every finding, highest priority first, without changing behavior.
+5. Apply every finding, highest priority first, without changing behavior.
    Skip a finding, and list it with the reason, when it is tagged
    `needs-user`, would change behavior, or contradicts the plan's
    "What We're NOT Doing".
-5. Re-verify: kmp-verify `--base BASE` (or the resolved TASK_RUNNER) plus the
-   plan's automated checks, with the step 2 fix rounds. If a review change
+6. Re-verify: kmp-verify `--base BASE` (or the resolved TASK_RUNNER) plus the
+   plan's automated checks, with the step 3 fix rounds. If a review change
    breaks a check that 2 rounds cannot fix, undo that change by hand and list
    it as reverted.
 </finish>
@@ -247,6 +262,9 @@ After all phases complete, provide a summary:
 - Resume point: [if interrupted: which phase, what was done, next action]
 - Blocked: [per unavailable source: what failed, what to fix, which items wait, the resume command; omit when nothing was blocked]
 - Validation: [per-phase verdicts, what was fixed, what still fails]
+- Requirements: [met / partial / not met / runtime only counts; what was fixed;
+  each one left for the user with its ID, the requirement and why; or skipped:
+  no VERIFICATION.md with requirements for this plan]
 - Review: [verdict; findings applied, skipped with reason, reverted]
 - Manual checks: every unchecked manual verification item from the plan, plus
   any manual step validation added, as a numbered list grouped by phase. Each
@@ -275,7 +293,7 @@ Before concluding, verify ALL of:
 □ All mismatches reported and resolved with user
 □ Plan checkboxes updated via Edit tool (not just mentally)
 □ Git worktree cleanup offered (if one was created)
-□ `<finish>` ran (or its skip is explained): validation fixed or reported, review findings applied or listed
+□ `<finish>` ran (or its skip is explained): validation fixed or reported, requirements checked and the Implementation Check appended (or the skip said), review findings applied or listed
 </self_check>
 
 ---
