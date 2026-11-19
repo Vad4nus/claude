@@ -66,9 +66,9 @@ Fetches issues from a self-hosted Jira Server instance.
 Non-secret fields: terminal `claude` → `/plugin` → Installed → vad4nus → Configure options (read-only in the desktop app).
 
 | Field | Default | Notes |
-| --- | --- | --- |
-| `jira_server_url` | `https://jira.jetru.by` | Base URL of your Jira Server |
-| `jira_server_project` | — | Project key or comma-separated list; empty = all |
+| --- |---------| --- |
+| `jira_server_url` | `https://jira.****` | Base URL of your Jira Server |
+| `jira_server_project` | —       | Project key or comma-separated list; empty = all |
 | `jira_download_dir` | `~/Jira` | Root dir for downloaded issues |
 
 PAT: create one in Jira (profile → Personal Access Tokens → Create token), then store it from your own terminal. The prompt hides the input; change or delete it later in Keychain Access under `vad4nus-jira-server`:
