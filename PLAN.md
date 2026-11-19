@@ -133,6 +133,13 @@ New skill `/vad4nus:ios-testflight <Staging|StagingNext|Prod> <version> (<build>
 - implement-plan `<finish>` step 1 spawns it in implementation mode while validate-plan runs, finds VERIFICATION.md by its `Plan:` line in `thoughts/groom/` or `history/` (plan-archive moves it), fixes confirmed gaps with the validation fixes, appends `## Implementation Check`, summary gains a Requirements line. Plans from before this change have no requirements table: the check is skipped and said so.
 - Untested: first real run of both modes.
 
+## Phase 13: Opus advisor for Sonnet sessions — 2026-11-19
+
+- `hooks/register.ts` (a mod module, named by `hooks/hooks.json`): a `settings.read` hook. On the merged read with no `advisorModel` set, a main model that is not Opus, Fable or Mythos gets `advisorModel: "opus"`; Opus sessions are left alone (the advisor must be at least as capable as the executor). A user-set `advisorModel` always wins. A failing hook falls back to the engine's settings (`.catch`).
+- Why a hook: Claude Code has no per-command or per-skill advisor (no frontmatter key), only the `advisorModel` setting and `/advisor`.
+- Limit: the engine re-merges settings only when settings or plugins change, so the model at the last merge decides. A `/model` switch, or orchestrate's `set_session_model` right after `start_session`, may not re-trigger it; `/reload-plugins` does. Changing the advisor model itself applies after `/clear` or `/compact`.
+- Untested: whether a Sonnet session really shows the advisor tool, and whether orchestrate's stage sessions pick it up.
+
 ## Still open
 
 - First real `/vad4nus:orchestrate` run in a fresh session: does `start_session` share the worktree and take a slash command as the first message, do turn-end notices arrive, does each marker show up in `list_events`.
