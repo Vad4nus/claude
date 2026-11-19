@@ -138,6 +138,13 @@ New skill `/vad4nus:ios-testflight <Staging|StagingNext|Prod> <version> (<build>
 - Tried a `settings.read` mod hook that set `advisorModel: "opus"` for non-Opus sessions. It never runs: `cc-plugin-sec-default` is seated first on `settings.read` and sends the event past user-tier mods ("its settings.read hook was skipped"), so a plugin cannot rewrite settings. Removed rather than worked around.
 - What works instead: `advisorModel` in a settings file, or `/advisor opus` in the session. No per-command or per-skill advisor exists.
 
+## Phase 14: setup doctor, ios-qa on AXe — 2026-11-19
+
+- `scripts/doctor.sh` checks every tool the skills use and prints the install command per gap; README "New Mac setup" lists them with the versions on the first Mac. `plugin.json` runs `${HOME}/.local/bin/uv` instead of a hardcoded home path.
+- ios-qa reads the screen as text: `skills/ios-qa/screen.py` filters `axe describe-ui` (~150 KB JSON) to `type|label|value|x,y` rows (~1 KB on the Feed screen), taps with `axe tap --label` or coordinates. Screenshots only for visual checks, empty trees and failures; no AXe → screenshots as before.
+- AXe 2.0.4 on this Intel Mac with Xcode 26.3: `describe-ui` and `tap --label` work, `--agent` mode fails with observationFailed, `--minimal-keys` does not exist.
+- Untested: `${HOME}` expansion in the plugin MCP command (check the Jira server after a restart), a full ios-qa run.
+
 ## Still open
 
 - First real `/vad4nus:orchestrate` run in a fresh session: does `start_session` share the worktree and take a slash command as the first message, do turn-end notices arrive, does each marker show up in `list_events`.

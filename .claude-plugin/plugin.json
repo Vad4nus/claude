@@ -26,7 +26,7 @@
   },
   "mcpServers": {
     "jira-server": {
-      "command": "/Users/macbook-cdg/.local/bin/uv",
+      "command": "${HOME}/.local/bin/uv",
       "args": ["run", "--quiet", "--script", "${CLAUDE_PLUGIN_ROOT}/mcp/jira_server.py"],
       "env": {
         "JIRA_URL": "${user_config.jira_server_url}",

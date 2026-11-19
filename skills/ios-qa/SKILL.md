@@ -21,7 +21,7 @@ A short hands-on check of the app already installed on a simulator, usually righ
 
 1. The bundle id comes from the flavor, with the table in `../ios-run/SKILL.md` (relative to this skill's base directory). Missing or unknown flavor → ask with `AskUserQuestion` offering the four, no default.
 2. UDID: `--device` resolved as in ios-run step 1, else `xcrun simctl list devices booted | grep -oE "[0-9A-F-]{36}" | head -1`. None booted → stop: run `/vad4nus:ios-run <flavor>` first.
-3. iOS Simulator `control` tool: `attach` on that UDID, then `screenshot`. The app is not on screen → `xcrun simctl launch <UDID> <bundle id>`. Not installed → stop: run ios-run first.
+3. iOS Simulator `control` tool: `attach` on that UDID, so the user can watch. Then read the screen (Running below): the first row is not `Application|WatchLink…` → `xcrun simctl launch <UDID> <bundle id>`. Not installed → stop: run ios-run first.
 
 ## Checks
 
@@ -31,7 +31,14 @@ A short hands-on check of the app already installed on a simulator, usually righ
 
 ## Running
 
-Per check: `screenshot`, act (`tap`, `swipe`, `text`, `button`, in device points from the latest screenshot), `screenshot`, compare with the expected result.
+Read the screen as text, not as a picture: a screenshot costs about 1,500 tokens and stays in context, a text screen a few hundred. All commands below run with the Bash sandbox disabled.
+
+- **Read:** `python3 <this skill's base directory>/screen.py <UDID>` prints one row per labelled element, `type|label|value|x,y`, with x,y the tap centre in device points. Never run bare `axe describe-ui`: its JSON is about 150 KB per screen.
+- **Act:** `axe tap --label "<label>" --wait-timeout 5 --udid <UDID>`. When the label shows up twice in the rows, or the element has no label, use the coordinates from the rows: `axe tap -x <x> -y <y> --udid <UDID>`. Type with `axe type "<text>" --udid <UDID>` (US layout only: for other characters use the `control` tool's `text`). Scroll with `axe swipe --start-x 200 --start-y 600 --end-x 200 --end-y 250 --udid <UDID>`.
+- **Verify:** read the screen again and compare the rows with the expected result.
+- **Screenshot** (the `control` tool's `screenshot`) only when the check is visual (layout, colour, an image, a spinner), when the rows are empty or miss what is clearly there (system alerts, web views, images without a label), or when a check fails.
+
+`axe` missing (`command -v axe` fails) → say "AXe не установлен: `brew install cameroncooke/axe/axe`", then run every check on screenshots: `screenshot`, act with the `control` tool in device points, `screenshot`.
 
 - Fail → `xcrun simctl io <UDID> screenshot /tmp/wl-qa-<n>.png`, note what was on screen instead, go on to the next check.
 - The home screen instead of the app is a crash → fail, `xcrun simctl launch <UDID> <bundle id>`, go on.
